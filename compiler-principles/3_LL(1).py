@@ -4,8 +4,31 @@
 # 创建follow集
 # 创建预测分析表
 # 对输入的字符进行分析
+flag = 0
 
-t_special_word = r'\+|-|\*|/|\(|\)|:|\'|=|\[|\]|,'
+def add_value(dict, key, value): # 列表中添加元素
+    global flag
+    if key not in dict:
+        dict[key] = [value]
+        flag = 1
+    elif value not in dict[key]:
+        dict[key].append(value)
+        flag = 1
+
+
+def add_list(dict, key1, key2): # 列表2的内容给列表1，去重去空符
+    global flag
+    if key2 not in dict:
+        dict[key2] = []
+        flag = 1
+    if key1 not in dict:
+        dict[key1] = []
+        flag = 1
+    for a in dict[key2]:
+        if a not in dict[key1] and a != '^':
+            dict[key1].append(a)
+            flag = 1
+
 
 class LL1():
     def __init__(self):
@@ -15,7 +38,7 @@ class LL1():
         self.V_T = []       # 文法的终结符
         self.V_N_T = []     # 并集
         self.test_input = ''# 样例输入
-        self.Fisrt = {}     # first集
+        self.First = {}     # first集
         self.Follow = {}    # follow集
         self.Table = {}     # 分析表
 
@@ -33,7 +56,7 @@ class LL1():
         self.grammer = {
             'E': [['T', '_E']],
             '_E': [['+', '_E'], ['^']],
-            'T': [['F'], ['_T']],
+            'T': [['F', '_T']],
             '_T': [['*', 'F', '_T'], ['^']],
             'F': [['(', 'E', ')'], ['i']],
         }
@@ -48,13 +71,37 @@ class LL1():
         self.test_input = 'i+i*i'
 
     def create_first(self):
-        for key in self.grammer.keys():
+        # 默认要处理的都是单个非终结符
+        global flag
+        while True:
+            flag = 0  # 判断First集
+            # 对于每一个非终结符
+            for key in self.grammer:
+                if key in self.V_T: # 终结符
+                    add_value(self.First, key, key)
+                else:   # 非终结符
+                    for part in self.grammer[key]:
+                        # 非终结符->终结符开头
+                        if part[0] in self.V_T:
+                            add_value(self.First, key, part[0])
+                        else: # 非终结符->非终结符开头
+                            # 把非终结符First集加入原来的First中
+                            add_list(self.First, key, part[0])
+                            pass
+
+                        # 判断目前是否能够推出空符
+                        for i in range(0, len(part)-1):
+                            if part[i] not in self.First or '^' not in self.First[part[i]]:
+                                break
+                            add_list(self.First, key, part[i+1])
+                            if i == len(part)-2 and '^' in self.First[part[i+1]]:
+                                add_value(self.First, key, '^')
 
 
 
+            if flag == 0: # First没有变化，结束
+                break
 
-
-        pass
 
     def create_follow(self):
         pass
@@ -63,6 +110,7 @@ class LL1():
         pass
 
     def check(self):
+        print(self.First)
         pass
 
 
@@ -72,7 +120,7 @@ class LL1():
 
 def main():
     LL = LL1()
-    LL1.get_grammer()
+    LL.get_grammer()
     LL.create_first()
     LL.create_follow()
     LL.create_analyse()
