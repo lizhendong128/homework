@@ -18,12 +18,19 @@ def add_value(dict, key, value): # 列表中添加元素
 
 def add_list(dict, key1, key2): # 列表2的内容给列表1，去重去空符
     global flag
-    if key2 not in dict:
-        dict[key2] = []
-        flag = 1
-    if key1 not in dict:
+    if key1 not in dict: # 初始化列表1
         dict[key1] = []
         flag = 1
+
+    if key2 in LL.V_T:  # First(V_T)=V_T
+        dict[key1].append(key2)
+        flag = 1
+        return
+
+    if key2 not in dict: # 初始化列表2
+        dict[key2] = []
+        flag = 1
+
     for a in dict[key2]:
         if a not in dict[key1] and a != '^':
             dict[key1].append(a)
@@ -61,11 +68,11 @@ class LL1():
             'F': [['(', 'E', ')'], ['i']],
         }
 
-        self.V_N = ['E', '_E', 'T', '_T', 'F']
-        self.V_T = ['+', '*', '(', ')', 'i', '^']
-        self.V_N_T = ['E', '_E', 'T', '_T', 'F',
+        self.V_N = ['E', '_E', 'T', '_T', 'F']      # 非终结符
+        self.V_T = ['+', '*', '(', ')', 'i', '^']   # 终结符
+        self.V_N_T = ['E', '_E', 'T', '_T', 'F',    # 符号总和
                       '+', '*', '(', ')', 'i', '^']
-        self.start_V = 'E'
+        self.start_V = 'E'                           # 开始符号
 
     def input_data(self):
         self.test_input = 'i+i*i'
@@ -98,19 +105,41 @@ class LL1():
                                 add_value(self.First, key, '^')
 
 
-
             if flag == 0: # First没有变化，结束
                 break
 
 
     def create_follow(self):
-        pass
+        # 默认处理单个非终结符
+        # 第 1 步
+        add_value(self.Follow, self.start_V, '#')
+        global flag
+        while True:
+            flag = 0 # 判断是否结束
+            for key in self.grammer: # 对于每一个产生式
+                for value in self.grammer[key]: # 对每一个结果
+                    pre=''  # 指向前一个数的指针
+                    this='' # 当前指针
+                    for i in range(len(value)): # 遍历每一个
+                        pre = this
+                        this = value[i]
+                        if i == 0:
+                            continue
+                        if pre in self.V_N:
+                            pass
+
+
+
+            if flag == 0:
+                break
+
 
     def create_analyse(self):
         pass
 
     def check(self):
-        print(self.First)
+        print('First =  ', self.First)
+        print('Follow = ', self.Follow)
         pass
 
 
@@ -118,15 +147,12 @@ class LL1():
 
 
 
-def main():
-    LL = LL1()
-    LL.get_grammer()
-    LL.create_first()
-    LL.create_follow()
-    LL.create_analyse()
-    LL.input_data()
-    LL.check()
 
+LL = LL1()
+LL.get_grammer()
+LL.create_first()
+#LL.create_follow()
+LL.create_analyse()
+LL.input_data()
+LL.check()
 
-if __name__ == '__main__':
-    main()
