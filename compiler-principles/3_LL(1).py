@@ -22,9 +22,10 @@ def add_list(dict1, key1, dict2, key2): # 列表2的内容给列表1，去重去
         dict1[key1] = []
         flag = 1
 
-    if key2 in LL.V_T and key2 not in dict1[key1]:  # First(V_T)=V_T
-        dict1[key1].append(key2)
-        flag = 1
+    if key2 in LL.V_T:
+        if key2 not in dict1[key1]:  # First(V_T)=V_T
+            dict1[key1].append(key2)
+            flag = 1
         return
 
     if key2 not in dict2: # 初始化列表2
@@ -62,7 +63,7 @@ class LL1():
 
         self.grammer = {
             'E': [['T', '_E']],
-            '_E': [['+', '_E'], ['^']],
+            '_E': [['+', 'T', '_E'], ['^']],
             'T': [['F', '_T']],
             '_T': [['*', 'F', '_T'], ['^']],
             'F': [['(', 'E', ')'], ['i']],
@@ -137,11 +138,42 @@ class LL1():
 
 
     def create_analyse(self):
-        pass
+        # 初始化预测表
+        for A in self.V_N:
+            self.Table[A] = {}
+            for a in self.V_T:
+                if a == '^':continue
+                self.Table[A][a] = ''
+
+        # 进行预测表的构造
+        for A in self.grammer: # 对于每一个产生式
+            for part in self.grammer[A]: # 对产生式右部的每一部分
+                for a in self.V_T: # 对于每一个终结符
+                    if a == '^': # 横轴忽略空符
+                        continue
+                    if part[0] in self.V_T: # 右部开头为终结符，First集为本身
+                        if a == part[0]:
+                            self.Table[A][a] = part;
+                    elif a in self.First[part[0]]: # 右部开头为非终结符
+                        self.Table[A][a] = part;
+
+                if part[0] in self.V_T: # 如果右部开头为终结符，first集为本身
+                    if part[0] == '^': # 空符
+                        for b in self.Follow[A]: #
+                            if b not in self.V_N:
+                                self.Table[A][b] = part;
+                elif '^' in self.First[part[0]]: # 右部开头不是终结符，判断空符是否属于first
+                    for b in self.Follow[A]:
+                        if b not in self.V_N:
+                            self.Table[A][b] = part;
+
 
     def check(self):
         print('First =  ', self.First)
         print('Follow = ', self.Follow)
+
+        for i in self.Table:
+            print(i, self.Table[i])
         pass
 
 
