@@ -16,24 +16,24 @@ def add_value(dict, key, value): # 列表中添加元素
         flag = 1
 
 
-def add_list(dict, key1, key2): # 列表2的内容给列表1，去重去空符
+def add_list(dict1, key1, dict2, key2): # 列表2的内容给列表1，去重去空符
     global flag
-    if key1 not in dict: # 初始化列表1
-        dict[key1] = []
+    if key1 not in dict1: # 初始化列表1
+        dict1[key1] = []
         flag = 1
 
-    if key2 in LL.V_T:  # First(V_T)=V_T
-        dict[key1].append(key2)
+    if key2 in LL.V_T and key2 not in dict1[key1]:  # First(V_T)=V_T
+        dict1[key1].append(key2)
         flag = 1
         return
 
-    if key2 not in dict: # 初始化列表2
-        dict[key2] = []
+    if key2 not in dict2: # 初始化列表2
+        dict2[key2] = []
         flag = 1
 
-    for a in dict[key2]:
-        if a not in dict[key1] and a != '^':
-            dict[key1].append(a)
+    for a in dict2[key2]:
+        if a not in dict1[key1] and a != '^':
+            dict1[key1].append(a)
             flag = 1
 
 
@@ -93,17 +93,16 @@ class LL1():
                             add_value(self.First, key, part[0])
                         else: # 非终结符->非终结符开头
                             # 把非终结符First集加入原来的First中
-                            add_list(self.First, key, part[0])
+                            add_list(self.First, key, self.First, part[0])
                             pass
 
                         # 判断目前是否能够推出空符
                         for i in range(0, len(part)-1):
                             if part[i] not in self.First or '^' not in self.First[part[i]]:
                                 break
-                            add_list(self.First, key, part[i+1])
+                            add_list(self.First, key, self.First, part[i+1])
                             if i == len(part)-2 and '^' in self.First[part[i+1]]:
                                 add_value(self.First, key, '^')
-
 
             if flag == 0: # First没有变化，结束
                 break
@@ -120,16 +119,19 @@ class LL1():
                 for value in self.grammer[key]: # 对每一个结果
                     pre=''  # 指向前一个数的指针
                     this='' # 当前指针
-                    for i in range(len(value)): # 遍历每一个
+                    for i in range(len(value)+1): # 遍历每一个
                         pre = this
-                        this = value[i]
+                        # this = value[i]
+                        if i < len(value): this = value[i]
+                        # print(pre, this)
                         if i == 0:
                             continue
-                        if pre in self.V_N:
-                            pass
-
-
-
+                        if i < len(value) and pre in self.V_N:
+                            add_list(self.Follow, pre, self.First, this)
+                            if this in self.V_N and '^' in self.First[this]:
+                                add_list(self.Follow, pre, self.Follow, key)
+                        if i == len(value) and pre in self.V_N:
+                            add_list(self.Follow, pre, self.Follow, key)
             if flag == 0:
                 break
 
@@ -151,7 +153,7 @@ class LL1():
 LL = LL1()
 LL.get_grammer()
 LL.create_first()
-#LL.create_follow()
+LL.create_follow()
 LL.create_analyse()
 LL.input_data()
 LL.check()
