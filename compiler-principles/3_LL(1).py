@@ -4,7 +4,8 @@
 # 创建follow集
 # 创建预测分析表
 # 对输入的字符进行分析
-flag = 0
+flag = 0 # first或者follow是否变化的标志
+step = 0 # 分析过程每一步
 
 def add_value(dict, key, value): # 列表中添加元素
     global flag
@@ -32,10 +33,11 @@ def add_list(dict1, key1, dict2, key2): # 列表2的内容给列表1，去重去
         dict2[key2] = []
         flag = 1
 
-    for a in dict2[key2]:
+    for a in dict2[key2]: # 添加
         if a not in dict1[key1] and a != '^':
             dict1[key1].append(a)
             flag = 1
+
 
 
 class LL1():
@@ -75,8 +77,8 @@ class LL1():
                       '+', '*', '(', ')', 'i', '^']
         self.start_V = 'E'                           # 开始符号
 
-    def input_data(self):
-        self.test_input = 'i+i*i'
+    def input_data(self): # 输入内容
+        self.test_input = 'i+i*i#'
 
     def create_first(self):
         # 默认要处理的都是单个非终结符
@@ -153,35 +155,80 @@ class LL1():
                         continue
                     if part[0] in self.V_T: # 右部开头为终结符，First集为本身
                         if a == part[0]:
-                            self.Table[A][a] = part;
+                            self.Table[A][a] = part
                     elif a in self.First[part[0]]: # 右部开头为非终结符
-                        self.Table[A][a] = part;
+                        self.Table[A][a] = part
 
                 if part[0] in self.V_T: # 如果右部开头为终结符，first集为本身
                     if part[0] == '^': # 空符
                         for b in self.Follow[A]: #
                             if b not in self.V_N:
-                                self.Table[A][b] = part;
+                                self.Table[A][b] = part
                 elif '^' in self.First[part[0]]: # 右部开头不是终结符，判断空符是否属于first
                     for b in self.Follow[A]:
                         if b not in self.V_N:
-                            self.Table[A][b] = part;
+                            self.Table[A][b] = part
 
 
     def check(self):
-        print('First =  ', self.First)
-        print('Follow = ', self.Follow)
+        # print('First =  ', self.First)
+        # print('Follow = ', self.Follow)
+        #
+        # for i in self.Table:
+        #     print(i, self.Table[i])
+        # pass
+        # 开始进行分析：
+        index = 0
+        stack = []
+        temp = ''
+        # 初始化
+        stack.append('#')
+        stack.append(self.start_V)
+        print('步骤   ','分析栈  ', '剩余输入串   ', '所用产生式')
 
-        for i in self.Table:
-            print(i, self.Table[i])
-        pass
+        # 分析开始
+        while True:
+            self.print_step(stack, index, temp) # 打印最后的分析步骤
+            if stack[-1] == self.test_input[index] == '#': # 分析成功
+                break
+            if stack[-1] == self.test_input[index]: # 栈顶元素匹配成功
+                stack.pop()
+                index+=1
+            if stack[-1] in self.V_N: # 如果栈顶符号为非终结符，查表
+                if self.Table[stack[-1]][self.test_input[index]] == '':
+                    print('ERROR')
+                    break
+                else:
+                    temp = stack.pop()
+                    for a in reversed(self.Table[temp][self.test_input[index]]):
+                        if a != '^':
+                            stack.append(a)
+
+    def print_step(self, stack, index, last): # 打印最后的分析步骤
+        global step
+        # 步骤
+        print("{:<7d}".format(step), end='')
+        # 分析栈
+        str = ''
+        for ch in stack:
+            str+=ch
+        print('{:8}'.format(str),end='')
+        print(' ', end='')
 
 
+        # 剩余输入串
+        print('{:12}'.format(self.test_input[index:]),end=' ')
+        # 所用产生式
+        if last != '':
+            print(last,end='')
+            print('->', end='')
+            for ch in self.Table[last][self.test_input[index]]:
+                print(ch, end='')
+        print()
+        step+=1
 
 
-
-
-
+# 程序开始
 LL = LL1()
 LL.get_grammer()
 LL.create_first()
