@@ -47,7 +47,7 @@ class LL1():
         self.V_N = []       # 文法的非终结符
         self.V_T = []       # 文法的终结符
         self.V_N_T = []     # 并集
-        self.test_input = ''# 样例输入
+        self.test_input = ''  # 样例输入
         self.First = {}     # first集
         self.Follow = {}    # follow集
         self.Table = {}     # 分析表
@@ -73,12 +73,17 @@ class LL1():
 
         self.V_N = ['E', '_E', 'T', '_T', 'F']      # 非终结符
         self.V_T = ['+', '*', '(', ')', 'i', '^']   # 终结符
-        self.V_N_T = ['E', '_E', 'T', '_T', 'F',    # 符号总和
-                      '+', '*', '(', ')', 'i', '^']
+        self.V_a = ['+', '*', '(', ')', 'i', '#']   # 分析表的纵轴部分
         self.start_V = 'E'                           # 开始符号
 
     def input_data(self): # 输入内容
-        self.test_input = 'i+i*i#'
+        # self.test_input = 'i+i*i#'
+        print('请输入要识别的字符串（请以#结尾）：')
+        self.test_input = input()
+        if self.test_input[-1] != '#':
+            print('ERROR! 结尾一定要是#')
+            exit()
+
 
     def create_first(self):
         # 默认要处理的都是单个非终结符
@@ -143,14 +148,14 @@ class LL1():
         # 初始化预测表
         for A in self.V_N:
             self.Table[A] = {}
-            for a in self.V_T:
+            for a in self.V_a:
                 if a == '^':continue
                 self.Table[A][a] = ''
 
         # 进行预测表的构造
         for A in self.grammer: # 对于每一个产生式
             for part in self.grammer[A]: # 对产生式右部的每一部分
-                for a in self.V_T: # 对于每一个终结符
+                for a in self.V_a: # 对于每一个终结符
                     if a == '^': # 横轴忽略空符
                         continue
                     if part[0] in self.V_T: # 右部开头为终结符，First集为本身
@@ -196,7 +201,8 @@ class LL1():
                 index+=1
             if stack[-1] in self.V_N: # 如果栈顶符号为非终结符，查表
                 if self.Table[stack[-1]][self.test_input[index]] == '':
-                    print('ERROR')
+                    print('ERROR!输入串不合法！')
+                    print('输入的符号"', self.test_input[index], '"无法匹配文法！')
                     break
                 else:
                     temp = stack.pop()
@@ -236,4 +242,5 @@ LL.create_follow()
 LL.create_analyse()
 LL.input_data()
 LL.check()
+print('输入串合法')
 
