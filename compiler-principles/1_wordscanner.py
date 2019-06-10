@@ -85,6 +85,7 @@ class Scanner(object):
                     i = i + 2
                     continue # 注释结束
 
+                # 跳过无用符号
                 if note == 0 and s_line[i]!='\t' and s_line[i]!='\n' and s_line[i]!='\v' and s_line[i]!='\r':
                     a = a + s_line[i]
 
@@ -112,7 +113,7 @@ def clear_word(word):
 # 读取文件
 scanner = Scanner()
 code = []
-with open('D:/test.txt', 'r',encoding='UTF-8') as f:
+with open('D:/test.txt', 'r',encoding='UTF-8') as f: # 读取
     for line in f.readlines():
         code.append(line.strip())
 
