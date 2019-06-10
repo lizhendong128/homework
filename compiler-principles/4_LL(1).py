@@ -63,7 +63,7 @@ class LL1():
         F->(E)|i
         '''
 
-        self.grammer = {
+        self.grammer = { # 这里的E'用_E表示，其他也是如此
             'E': [['T', '_E']],
             '_E': [['+', 'T', '_E'], ['^']],
             'T': [['F', '_T']],
@@ -78,7 +78,7 @@ class LL1():
 
     def input_data(self): # 输入内容
         # self.test_input = 'i+i*i#'
-        print('请输入要识别的字符串（请以#结尾）：')
+        print('输入一以#结束的符号串(包括+—*/（）i#)：',end='')
         self.test_input = input()
         if self.test_input[-1] != '#':
             print('ERROR! 结尾一定要是#')
@@ -201,8 +201,10 @@ class LL1():
                 index+=1
             if stack[-1] in self.V_N: # 如果栈顶符号为非终结符，查表
                 if self.Table[stack[-1]][self.test_input[index]] == '':
-                    print('ERROR!输入串不合法！')
-                    print('输入的符号"', self.test_input[index], '"无法匹配文法！')
+                    print(self.test_input+'为非法符号串')
+                    #print('ERROR!输入串不合法！')
+                    #print('输入的符号"', self.test_input[index], '"无法匹配文法！')
+                    exit()
                     break
                 else:
                     temp = stack.pop()
@@ -242,5 +244,5 @@ LL.create_follow()
 LL.create_analyse()
 LL.input_data()
 LL.check()
-print('输入串合法')
+print(LL.test_input+'为合法符号串')
 
