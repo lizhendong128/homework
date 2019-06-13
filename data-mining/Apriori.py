@@ -50,7 +50,7 @@ while(1): #使用循环来进行多次操作
     keys1 = copy.deepcopy(frequent_item_k)  # 使用deepcopy，将频繁项集保存到keys1
     frequent_item_k.clear()
     item1.clear()
-    print(keys1)
+    # print(keys1)
 
     pass
 
@@ -72,7 +72,7 @@ while(1): #使用循环来进行多次操作
             temp.sort()
             if len(temp)==k+1 and list(temp) not in item1:
                 item1.append(list(temp))
-                print(item1)
+                # print(item1)
 
     k = k + 1
 # 输出k项集
