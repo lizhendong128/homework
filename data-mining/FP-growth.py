@@ -156,7 +156,7 @@ tree, headerTable = createTree(items, 3)
 
 
 
-# 查找频繁项集
+# 查找条件模式基
 
 condPats = findPrefixPath('z', headerTable)
 print('z', condPats)
@@ -171,4 +171,5 @@ print('s', condPats)
 condPats = findPrefixPath('r', headerTable)
 print('r', condPats)
 
+# 查找频繁项集
 mineTree(tree, headerTable, 2)
